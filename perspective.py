@@ -10,6 +10,56 @@ import pygame
 winSize=600
 
 
+def lettresXYZ ( e, pos, size, colorLettres ):
+	# lettre X
+	e.append ( ( (pos+size/2,0,0), (pos+size/2+size,size,0), colorLettres ) )
+	e.append ( ( (pos+size/2,size,0), (pos+size/2+size,0,0), colorLettres ) )
+
+	# lettre Y
+	e.append ( ( (0,pos+size/2,0), (0,pos+size/2+size/2,0), colorLettres ) )
+	e.append ( ( (0,pos+size/2+size/2,0), (size/2,pos+size/2+size,0), colorLettres ) )
+	e.append ( ( (0,pos+size/2+size/2,0), (-size/2,pos+size/2+size,0), colorLettres ) )
+
+	# lettre Z
+	e.append ( ( (0,0,pos+size/2), (0,0,pos+size/2+size), colorLettres ) )
+	e.append ( ( (0,size,pos+size/2), (0,0,pos+size/2+size), colorLettres ) )
+	e.append ( ( (0,size,pos+size/2+size), (0,size,pos+size/2), colorLettres ) )
+
+
+def addVector ( e, coords, color ):
+	e.append ( ( coords, (0,0,0), color ) )
+	e.append ( ( coords, (coords[0]-math.copysign(0.1,coords[0]),coords[1],coords[2]), color ) )
+	e.append ( ( coords, (coords[0],coords[1]-math.copysign(0.1,coords[1]),coords[2]), color ) )
+	e.append ( ( coords, (coords[0],coords[1],coords[2]-math.copysign(0.1,coords[2])), color ) )
+
+
+
+def createEx20_6c ():
+	e=[]
+
+	colorAxes = (100,100,100)
+	e.append ( ( (-10,0,0), (10,0,0), colorAxes ) )
+	e.append ( ( (0,-10,0), (0,10,0), colorAxes ) )
+	e.append ( ( (0,0,-10), (0,0,10), colorAxes ) )
+
+	lettresXYZ ( e, 11, 2, colorAxes )
+
+	addVector ( e, (1,4,-1), (250,200,0) )
+
+	colorTarget = (100,100,250)
+	e.append ( ( (3,-10,2), (3,10,2), colorTarget ) )
+
+	colorTry = (10,250,10)
+	addVector ( e, (3,(-16+6*math.sqrt(301))/46,2), colorTry )
+	addVector ( e, (3,(-16-6*math.sqrt(301))/46,2), colorTry )
+
+	colorTry = (250,10,10)
+	addVector ( e, (3,(-4+math.sqrt(2661))/23,2), colorTry )
+	addVector ( e, (3,(-4-math.sqrt(2661))/23,2), colorTry )
+
+	return e
+
+
 def createEtoile():
 	c=1 ## la moitié des côtés du cube
 	p=5 ## longeur des pointes
@@ -75,19 +125,7 @@ def createEtoile():
 	e.append ( ( (c,c,-c), (-c,c,-c), colorCube ) )
 	e.append ( ( (c,c,-c), (c,-c,-c), colorCube ) )
 
-	# lettre X
-	e.append ( ( (c+p+c/2,0,0), (c+p+c/2+c,c,0), colorLettres ) )
-	e.append ( ( (c+p+c/2,c,0), (c+p+c/2+c,0,0), colorLettres ) )
-
-	# lettre Y
-	e.append ( ( (0,c+p+c/2,0), (0,c+p+c/2+c/2,0), colorLettres ) )
-	e.append ( ( (0,c+p+c/2+c/2,0), (c/2,c+p+c/2+c,0), colorLettres ) )
-	e.append ( ( (0,c+p+c/2+c/2,0), (-c/2,c+p+c/2+c,0), colorLettres ) )
-
-	# lettre Z
-	e.append ( ( (0,0,c+p+c/2), (0,0,c+p+c/2+c), colorLettres ) )
-	e.append ( ( (0,c,c+p+c/2), (0,0,c+p+c/2+c), colorLettres ) )
-	e.append ( ( (0,c,c+p+c/2+c), (0,c,c+p+c/2), colorLettres ) )
+	lettresXYZ ( e, c+p, c, colorLettres )
 
 	return e
 
@@ -141,7 +179,11 @@ def point3Dto2D ( P,eye,SC,vecEyeSC,horizS,vertS ):
 	# => a = ((SC-eye) d-p vecEyeSC) / ((P-eye) d-p vecEyeSC)
 	# => a = (vecEyeSC d-p vecEyeSC) / ((P-eye) d-p vecEyeSC)
 	vecEyeP = vectorAB(eye,P)
-	a = dotProduct(vecEyeSC,vecEyeSC)/dotProduct(vecEyeP,vecEyeSC)
+	dPEPESC = dotProduct(vecEyeP,vecEyeSC)
+	if (dPEPESC==0):
+		a = 1
+	else:
+		a = dotProduct(vecEyeSC,vecEyeSC)/dPEPESC
 
 	# PinS : le point P projecte' dans l'ecran S (S=Screen)
 	vectorSCtoPinS = vectorAB ( SC, pointPlusVector ( eye, vecEyeP, a ) )
@@ -196,6 +238,7 @@ def main():
 	clock=pygame.time.Clock()
 
 	etoile = createEtoile()
+	exercice = createEx20_6c()
 
 	for n in range(0,2000,2):
 		rayon = 12*(500/(n+1))
@@ -203,7 +246,7 @@ def main():
 			win, 
 			( math.cos(math.radians(n))*rayon, (-800+n)/40, math.sin(math.radians(n))*rayon ),
 			(0,0,0), 
-			etoile 
+			exercice 
 		)
 		clock.tick(30)
 
@@ -212,7 +255,7 @@ def main():
 			win,
 			(n/10+1.5,n/10+1.5,n/10),
 			(0,0,0),
-			etoile
+			exercice
 		)
 		clock.tick(30)
 
