@@ -246,7 +246,7 @@ def main():
 			win, 
 			( math.cos(math.radians(n))*rayon, (-800+n)/40, math.sin(math.radians(n))*rayon ),
 			(0,0,0), 
-			exercice 
+			etoile 
 		)
 		clock.tick(30)
 
@@ -255,7 +255,7 @@ def main():
 			win,
 			(n/10+1.5,n/10+1.5,n/10),
 			(0,0,0),
-			exercice
+			etoile		
 		)
 		clock.tick(30)
 
