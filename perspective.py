@@ -1,13 +1,20 @@
 ## guexel@gmail.com 
-## 2020.03.20 a simple 3D perspective viewer, uses PYGAME for rendering https://www.pygame.org/
+## https://github.com/gustabmo/perspective
+##
+## 2020.03.20 a simple 3D perspective viewer
+## needs PYGAME https://www.pygame.org/
+##
 
 import sys
 import math
 import time
 import pygame
+import pygame.freetype
+from vectorfunctions import *
 
 
-winSize=600
+winSizeX=1100
+winSizeY=700
 
 
 def lettresXYZ ( e, pos, size, colorLettres ):
@@ -130,44 +137,217 @@ def createEtoile():
 	return e
 
 
-def vectorAB ( A,B,factor=1 ):
-	return (
-		(B[0]-A[0])*factor,
-		(B[1]-A[1])*factor,
-		(B[2]-A[2])*factor
+
+
+def test_20200205_gp_ex_2():
+	colorCube = (180,180,180)
+	colorD1 = (10,255,10)
+	colorD2 = (255,10,10)
+	colorPQ = (10,10,255)
+	deltaColor = 90
+
+	e=[]
+
+	e.append ( ( (+5,+5,+5), (+5,+5,-5), colorCube ) )
+	e.append ( ( (+5,+5,+5), (+5,-5,+5), colorCube ) )
+	e.append ( ( (+5,-5,-5), (+5,+5,-5), colorCube ) )
+	e.append ( ( (+5,-5,-5), (+5,-5,+5), colorCube ) )
+
+	e.append ( ( (-5,+5,+5), (+5,+5,+5), colorCube ) )
+	e.append ( ( (-5,+5,-5), (+5,+5,-5), colorCube ) )
+	e.append ( ( (-5,-5,-5), (+5,-5,-5), colorCube ) )
+	e.append ( ( (-5,-5,+5), (+5,-5,+5), colorCube ) )
+
+	e.append ( ( (-5,+5,+5), (-5,+5,-5), colorCube ) )
+	e.append ( ( (-5,+5,+5), (-5,-5,+5), colorCube ) )
+	e.append ( ( (-5,-5,-5), (-5,+5,-5), colorCube ) )
+	e.append ( ( (-5,-5,-5), (-5,-5,+5), colorCube ) )
+
+	e.append ( ( (-3,+5,+5), (-3,+5,+3), colorCube ) )
+	e.append ( ( (-5,+5,+3), (-3,+5,+3), colorCube ) )
+	e.append ( ( (-3,-5,+5), (-3,-5,+3), colorCube ) )
+	e.append ( ( (-5,-5,+3), (-3,-5,+3), colorCube ) )
+	e.append ( ( (-3,-5,+3), (-3,+5,+3), colorPQ ) )
+
+	for n in range(-10,+10):
+		e.append ( ( (n/2,+5,-5), (n/2,-5,+5), colorD1 ) )
+		e.append ( ( (n/2,+5,+5), (n/2,-5,-5), colorD2 ) )
+
+	return e
+
+
+
+
+
+def addLine ( e, p0, p1, color, t, duration ):
+	if ((len(p0)==3) and (len(p1)==3)):
+		div = 10
+		dt = duration/(div+1)
+		v = vectorAB ( p0, p1, 1/div )
+		pp = p0
+		for n in range(0,div):
+			pn = pointPlusVector ( pp, v )
+			e.append ( ( pp, pn, (255,255,255), t, t+dt*2 ) )
+			e.append ( ( pp, pn, color, t+dt*2 ) )
+			pp = pn
+			t += dt
+
+
+
+def addLineProjection ( e, p0, p1, center, planeP0, planeNormal, color, t, duration ):
+	if ((len(p0)==3) and (len(p1)==3)):
+		div = 10
+		dt = duration/(div+1)
+		v = vectorAB ( p0, p1, 1/div )
+		pp = p0
+		for n in range(0,div):
+			pn = pointPlusVector ( pp, v )
+			ok = True
+			try:
+				ppProj = projectionCenterPointPlane ( center, pp, planeP0, planeNormal  )
+				pnProj = projectionCenterPointPlane ( center, pn, planeP0, planeNormal  )
+			except ValueError:
+				ok = False
+			if (ok and (distPoints(ppProj,pnProj) < 20)):
+				e.append ( ( pp, pn, (255,255,255), t, t+dt*2 ) )
+				e.append ( ( pp, pn, color, t+dt*2 ) )
+			pp = pn
+			t += dt
+
+
+
+def projectionCircleHyperbole():
+	e = [];
+	t = 0.0;
+
+	colorSq1 = ( 100, 200, 20 )
+	colorSq2 = ( 200, 100, 20 )
+	colorCenter = ( 0, 0, 150 )
+	colorConstruction = ( 70, 70, 70 )
+
+	projCenter = ( -6, 0, 6.5 )
+	projCenterBase = ( projCenter[0], projCenter[1], 0 )
+
+	projPlaneP0 = ( 0,0,0 )
+	projPlaneNormal = ( 0,0,1 )
+
+	e.append ( ( projCenter, projCenterBase, colorCenter ) )
+	e.append ( ( projCenterBase, ( 0, 0, 0 ), colorCenter ) ) 
+	e.append ( ( (0,20,0), (0,-20,0), colorConstruction ) )
+	e.append ( ( (0,-20,0), (30,-20,0), colorConstruction ) )
+	e.append ( ( (30,-20,0), (30,20,0), colorConstruction ) )
+	e.append ( ( (30,20,0), (0,20,0), colorConstruction ) )
+
+	pA = ( 0, 5, 0 )
+	pB = ( 0, 5, 10 )
+	pC = ( 0, -5, 10 )
+	pD = ( 0, -5, 0 )
+
+	# e.append ( ( pA, pB, colorSq1, t ) )
+	t += 0.25
+	e.append ( ( pB, pC, colorSq1, t ) )
+	t += 0.25
+	e.append ( ( pC, pD, colorSq1, t ) )
+	t += 0.25
+	e.append ( ( pD, pA, colorSq1, t ) )
+	t += round(t)
+
+	semiDiagSq = 5*2**0.5
+	pE = ( 0,0,5+semiDiagSq )
+	pF = ( 0,0+semiDiagSq,5 )
+	pG = ( 0,0,5-semiDiagSq )
+	pH = ( 0,0-semiDiagSq,5 )
+	e.append ( ( pE, pF, colorSq2, t ) )
+	t += 0.25
+	e.append ( ( pF, pG, colorSq2, t ) )
+	t += 0.25
+	e.append ( ( pG, pH, colorSq2, t ) )
+	t += 0.25
+	e.append ( ( pH, pE, colorSq2, t ) )
+	t += round(t)
+
+	pAp = projectionCenterPointPlane ( projCenter, pA, projPlaneP0, projPlaneNormal )
+	pBp = projectionCenterPointPlane ( projCenter, pB, projPlaneP0, projPlaneNormal )
+	pCp = projectionCenterPointPlane ( projCenter, pC, projPlaneP0, projPlaneNormal )
+	pDp = projectionCenterPointPlane ( projCenter, pD, projPlaneP0, projPlaneNormal )
+	pEp = projectionCenterPointPlane ( projCenter, pE, projPlaneP0, projPlaneNormal )
+	pFp = projectionCenterPointPlane ( projCenter, pF, projPlaneP0, projPlaneNormal )
+	pGp = projectionCenterPointPlane ( projCenter, pG, projPlaneP0, projPlaneNormal )
+	pHp = projectionCenterPointPlane ( projCenter, pH, projPlaneP0, projPlaneNormal )
+
+	addLine ( e, projCenter, pB, colorConstruction, t, 1 )
+	addLine ( e, pB, pBp, colorConstruction, t, 1 )
+
+	torig=t
+	addLine ( e, pA, pB, colorSq1, t, 1 )
+	addLineProjection ( e, pA, pB, projCenter, projPlaneP0, projPlaneNormal, colorSq1, torig, 1 )
+
+
+
+	return e
+
+
+
+
+
+def chessboard():
+	e=[];
+
+	colorChessboard = ( 80, 80, 80 )
+	colorProjectedChessboard = ( 180, 180, 180 )
+	colorBlackSquares = ( 0, 190, 0 )
+	colorFrame = ( 150, 150, 0 )
+	colorRays = ( 80, 80, 250 )
+	squares = 4
+	sqSize = 1
+
+	chessboardSize = squares*sqSize
+
+	obs = ( +chessboardSize*0.7, -chessboardSize*0.8, chessboardSize*0.8 )
+	baseobs = ( obs[0],obs[1],0 )
+
+	for n in range ( 0, squares+1 ):
+		e.append ( ( ( n*sqSize, 0, 0 ), ( n*sqSize, chessboardSize, 0 ), colorChessboard ) )
+		e.append ( ( ( 0, n*sqSize, 0 ), ( chessboardSize, n*sqSize, 0 ), colorChessboard ) )
+
+	for px in range ( 0, squares ):
+		for py in range ( 0, squares ):
+			if (((px+py) % 2)==0):
+				x = px*sqSize
+				y = py*sqSize
+				for n in range ( 1,10 ):
+					e.append ( ( ( x+(n/10*sqSize), y, 0 ), ( x+(n/10*sqSize), y+sqSize, 0 ), colorBlackSquares ) )
+
+	e.append ( ( (-chessboardSize*0.1,0,0), (chessboardSize*1.1,0,0), colorFrame ) )
+	e.append ( ( (-chessboardSize*0.1,0,chessboardSize), (chessboardSize*1.1,0,chessboardSize), colorFrame ) )
+	e.append ( ( (-chessboardSize*0.1,0,0), (-chessboardSize*0.1,0,chessboardSize), colorFrame ) )
+	e.append ( ( (chessboardSize*1.1,0,0), (chessboardSize*1.1,0,chessboardSize), colorFrame ) )
+
+	e.append ( ( obs, baseobs, colorFrame ) )
+	e.append ( ( baseobs, (obs[0],0,0), colorFrame ) )
+
+	corner = (0,squares*sqSize,0)
+
+	e.append ( ( obs, corner, colorRays ) )
+	e.append ( ( baseobs, corner, colorRays ) )
+
+	projCorner = pointPlusVector (
+		obs,
+		vectorAB ( obs, corner ),
+		(0-obs[1])/(corner[1]-obs[1])
 	)
+	baseprojCorner = ( projCorner[0],projCorner[1],0 )
 
+	e.append ( ( projCorner, baseprojCorner, colorRays ) )
 
-def pointPlusVector ( A,V, factor=1 ):
-	return (
-		A[0]+V[0]*factor,
-		A[1]+V[1]*factor,
-		A[2]+V[2]*factor
-	)
+	e.append ( ( projCorner, (0,0,0), colorProjectedChessboard ) )
 
+	for n in range ( 1, squares+1 ):
+		e.append ( ( obs, ( 0,n*sqSize,0 ), colorRays ) )
+	
 
-def vectorTimesFactor ( V,F ):
-	return ( V[0]*F, V[1]*F, V[2]*F )
+	return e
 
-
-def lengthVector ( V ):
-	return (V[0]**2 + V[1]**2 + V[2]**2) ** 0.5
-
-
-def normalizeVector ( V ):
-	return vectorTimesFactor ( V, 1/lengthVector(V) )
-
-
-def distPoints ( A,B ):
-	return ((B[0]-A[0])**2 + (B[1]-A[1])**2 + (B[2]-A[2])**2) ** 0.5
-
-
-def dotProduct ( V1,V2 ):
-	return (V1[0]*V2[0] + V1[1]*V2[1] + V1[2]*V2[2])
-
-
-def v2st ( V ):
-	return "(%.2f,%.2f,%.2f)" % V
 
 
 def point3Dto2D ( P,eye,SC,vecEyeSC,horizS,vertS ):
@@ -192,76 +372,158 @@ def point3Dto2D ( P,eye,SC,vecEyeSC,horizS,vertS ):
 		print ( "ERROR A.3to2 vEyeSC",v2st(vecEyeSC),"vectorSCtoPinS",v2st(vectorSCtoPinS) )
 
 	return (
-		winSize//2 + int ( dotProduct ( vectorSCtoPinS, horizS ) ),
-		winSize//2 - int ( dotProduct ( vectorSCtoPinS, vertS ) )
+		winSizeX//2 + int ( dotProduct ( vectorSCtoPinS, horizS ) ),
+		winSizeY//2 - int ( dotProduct ( vectorSCtoPinS, vertS ) )
 	)
 
 
-def drawPerspective ( win, eye, pov, obj ):
-	distScreen = (winSize/2)
+def drawPerspective ( win, textfont, eye, pov, t, obj ):
+	distScreen = (winSizeX/2)
 	# SC = ScreenCenter
 	vecEyeSC = vectorAB ( eye, pov, distScreen*1.5 / distPoints(eye,pov) )
 	SC = pointPlusVector ( eye, vecEyeSC )
 
-	# vertS/horizS : les vecteurs vertical et horizontal vers le haut et droit de l'ecran, avec longueur 1
-	if (vecEyeSC[0]==0) and (vecEyeSC[2]==0):
+	# vertS/horizS : les vecteurs vertical et horizontal vers le haut et la droite de l'ecran, avec longueur 1
+	if (vecEyeSC[0]==0) and (vecEyeSC[1]==0):
 		horizS = ( 1,0,0 )
-		if (vecEyeSC[1]==0):
-			vertS = ( 0,0,1 )
+		if (vecEyeSC[2]==0):
+			vertS = ( 0,1,0 )
 		else:
-			vertS = normalizeVector ( ( 0,0,-vecEyeSC[1] ) )
-	elif (vecEyeSC[1]==0):
-		horizS = normalizeVector ( (-vecEyeSC[2], 0, vecEyeSC[0] ) )
-		vertS = (0,1,0)
+			vertS = normalizeVector ( ( 0,-vecEyeSC[2],0 ) )
+	elif (vecEyeSC[2]==0):
+		horizS = normalizeVector ( (-vecEyeSC[1], vecEyeSC[0], 0 ) )
+		vertS = (0,0,1)
 	else:
-		horizS = normalizeVector ( (-vecEyeSC[2], 0, vecEyeSC[0] ) )
-		if (vecEyeSC[1]>=0):
-			vertS = normalizeVector ( (-vecEyeSC[0], (vecEyeSC[0]**2+vecEyeSC[2]**2)/vecEyeSC[1], -vecEyeSC[2] ) )
+		horizS = normalizeVector ( (-vecEyeSC[1], vecEyeSC[0], 0 ) )
+		if (vecEyeSC[2]>=0):
+			vertS = normalizeVector ( (-vecEyeSC[0], -vecEyeSC[1], (vecEyeSC[0]**2+vecEyeSC[1]**2)/vecEyeSC[2] ) )
 		else:
-			vertS = normalizeVector ( (vecEyeSC[0], -(vecEyeSC[0]**2+vecEyeSC[2]**2)/vecEyeSC[1], vecEyeSC[2] ) )
+			vertS = normalizeVector ( (vecEyeSC[0], vecEyeSC[1], -(vecEyeSC[0]**2+vecEyeSC[1]**2)/vecEyeSC[2] ) )
 
 	pygame.Surface.fill ( win, (0,0,0) )
 	for line in obj:
-		pygame.draw.line ( 
-			win, 
-			line[2], 
-			point3Dto2D(line[0],eye,SC,vecEyeSC,horizS,vertS),
-			point3Dto2D(line[1],eye,SC,vecEyeSC,horizS,vertS)
-		)
+		if (
+			(len(line) <= 3)
+			or
+			(
+				(t >= line[3]) 
+				and 
+				((len(line) <= 4) or (t < line[4]))
+			)
+		):
+			pygame.draw.line ( 
+				win, 
+				line[2], 
+				point3Dto2D(line[0],eye,SC,vecEyeSC,horizS,vertS),
+				point3Dto2D(line[1],eye,SC,vecEyeSC,horizS,vertS)
+			)
+
+
+	textfont.render_to ( win, (10,10), "{:.2f}".format(t), (130,130,130) )
+
 	pygame.display.flip()
 
 	
 
-def main():
+def display ( figure ):
 	pygame.init()
-	win=pygame.display.set_mode((winSize,winSize))
+	win=pygame.display.set_mode((winSizeX,winSizeY))
 	clock=pygame.time.Clock()
+	textfont = pygame.freetype.Font("c:\\windows\\Fonts\\arial.ttf", 24)
 
-	etoile = createEtoile()
-	exercice = createEx20_6c()
+	# figure = createEtoile()
+	# figure = createEx20_6c()
+	# figure = test_20200205_gp_ex_2()
+	# figure = chessboard()
+	# igure = projectionCircleHyperbole()
 
-	for n in range(0,2000,2):
-		rayon = 12*(500/(n+1))
+	angle = 0
+	radius = 40
+	t = 0
+	eye = [0,0,0]
+	pov = [0,0,0]
+	running = True
+	timerunning = False
+	height = 10
+
+
+	while (running):
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				running = False
+
+		angle += math.pi/200
 		drawPerspective ( 
 			win, 
-			( math.cos(math.radians(n))*rayon, (-800+n)/40, math.sin(math.radians(n))*rayon ),
-			(0,0,0), 
-			etoile 
+			textfont,
+			( math.sin(angle)*radius, math.cos(angle)*radius, height ), 
+			pov, 
+			t, 
+			figure 
 		)
-		clock.tick(30)
 
-	for n in range(-200,200,2):
-		drawPerspective(
-			win,
-			(n/10+1.5,n/10+1.5,n/10),
-			(0,0,0),
-			etoile		
-		)
+		keys = pygame.key.get_pressed()
+		if keys[pygame.K_DOWN]:
+			radius += 1
+		if keys[pygame.K_UP]:
+			radius -= 1
+		if keys[pygame.K_PAGEUP]:
+			height += 0.5
+		if keys[pygame.K_PAGEDOWN]:
+			height -= 0.5
+		if keys[pygame.K_RIGHT]:
+			timerunning = True
+		if keys[pygame.K_LEFT]:
+			t -= 1
+			if (t < 0):
+				t = 0
+			timerunning = False
+		if keys[pygame.K_ESCAPE]:
+			running = False
+
 		clock.tick(30)
+		if (timerunning):
+			eratime = t
+			t += 0.03
+			if (math.trunc(eratime) != math.trunc(t)):
+				t=t
+				#t = math.trunc(t)
+				#timerunning = False
+
+
+
+	if (1==2):
+		for n in range(0,2000,2):
+			pygame.event.get()
+			rayon = 15*(500/(n+1))
+			drawPerspective ( 
+				win, 
+				textfont,
+				(
+					math.cos(math.radians(n))*rayon,
+					math.sin(math.radians(n))*rayon,
+					(-400+n)/80
+				),
+				(0,0,0), 
+				t,
+				figure 
+			)
+			clock.tick(30)
+
+		for n in range(-200,200,2):
+			pygame.event.get()
+			drawPerspective(
+				win,
+				textfont,
+				(n/10,n/10+15,n/10+15),
+				(0,0,0),
+				t, 
+				figure		
+			)
+			clock.tick(30)
 
 	time.sleep(1)
 	pygame.quit()
 
 
-main()
 
