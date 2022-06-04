@@ -106,12 +106,12 @@ def cross3D ( edges, P, len, color, time0=-1, time1=1e10 ):
 
 
 def drawPlan ( edges, P0, PN, radius, color, time0=-1, time1=1e10 ):
-	V1 = vecProduct ( PN, P0 )
-	if lengthVector(V1)==0: V1 = vecProduct ( PN, (0,0,1) )
-	if lengthVector(V1)==0: V1 = vecProduct ( PN, (0,1,0) )
-	if lengthVector(V1)==0: V1 = vecProduct ( PN, (1,0,0) )
+	V1 = crossProduct ( PN, P0 )
+	if lengthVector(V1)==0: V1 = crossProduct ( PN, (0,0,1) )
+	if lengthVector(V1)==0: V1 = crossProduct ( PN, (0,1,0) )
+	if lengthVector(V1)==0: V1 = crossProduct ( PN, (1,0,0) )
 	V1 = normalizeVector(V1)
-	V2 = normalizeVector(vecProduct(PN,V1))
+	V2 = normalizeVector(crossProduct(PN,V1))
 	for n in range(-10,+10):
 		D1 = pointPlusVector ( P0, V1, n/10.5*radius )
 		w = (1-(n/10.5)**2)**0.5

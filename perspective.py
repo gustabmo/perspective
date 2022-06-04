@@ -3,6 +3,7 @@
 ##
 ## 2020.03.20 a simple 3D perspective viewer
 ## needs PYGAME https://www.pygame.org/
+## pip install pygame
 ##
 
 import sys
@@ -169,7 +170,7 @@ def test_20200205_gp_ex_2():
 	e.append ( ( (-5,-5,+3), (-3,-5,+3), colorCube ) )
 	e.append ( ( (-3,-5,+3), (-3,+5,+3), colorPQ ) )
 
-	for n in range(-10,+10):
+	for n in range(-10,+10+1):
 		e.append ( ( (n/2,+5,-5), (n/2,-5,+5), colorD1 ) )
 		e.append ( ( (n/2,+5,+5), (n/2,-5,-5), colorD2 ) )
 
@@ -185,7 +186,7 @@ def addLine ( e, p0, p1, color, t, duration ):
 		dt = duration/(div+1)
 		v = vectorAB ( p0, p1, 1/div )
 		pp = p0
-		for n in range(0,div):
+		for n in range(div):
 			pn = pointPlusVector ( pp, v )
 			e.append ( ( pp, pn, (255,255,255), t, t+dt*2 ) )
 			e.append ( ( pp, pn, color, t+dt*2 ) )
@@ -200,7 +201,7 @@ def addLineProjection ( e, p0, p1, center, planeP0, planeNormal, color, t, durat
 		dt = duration/(div+1)
 		v = vectorAB ( p0, p1, 1/div )
 		pp = p0
-		for n in range(0,div):
+		for n in range(div):
 			pn = pointPlusVector ( pp, v )
 			ok = True
 			try:
@@ -306,12 +307,12 @@ def chessboard():
 	obs = ( +chessboardSize*0.7, -chessboardSize*0.8, chessboardSize*0.8 )
 	baseobs = ( obs[0],obs[1],0 )
 
-	for n in range ( 0, squares+1 ):
+	for n in range ( squares+1 ):
 		e.append ( ( ( n*sqSize, 0, 0 ), ( n*sqSize, chessboardSize, 0 ), colorChessboard ) )
 		e.append ( ( ( 0, n*sqSize, 0 ), ( chessboardSize, n*sqSize, 0 ), colorChessboard ) )
 
-	for px in range ( 0, squares ):
-		for py in range ( 0, squares ):
+	for px in range ( squares ):
+		for py in range ( squares ):
 			if (((px+py) % 2)==0):
 				x = px*sqSize
 				y = py*sqSize

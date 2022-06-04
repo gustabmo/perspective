@@ -21,7 +21,7 @@ P0 = midPoint ( A, B )
 AtoBsteps=50
 AtoBtime=15
 
-for i in range(0,AtoBsteps):
+for i in range(0,AtoBsteps*5):
 	MP = pointPlusVector ( A, vecAB, i/AtoBsteps )
 	solids.cross3D ( edgelist, MP, 0.05, (255,255,255), 1+i/AtoBsteps*AtoBtime, 1+(i+1)/AtoBsteps*AtoBtime )
 	PN = vectorAB ( MP, center )
