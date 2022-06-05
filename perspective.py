@@ -139,9 +139,9 @@ def display ( edges ):
 		if keys[pygame.K_DELETE]:
 			rotspeed += 0.05
 		if keys[pygame.K_HOME]:
-			angle -= 1
+			angle -= 1/180*math.pi
 		if keys[pygame.K_END]:
-			angle += 1
+			angle += 1/180*math.pi
 		if keys[pygame.K_SPACE]:
 			timerunning = not timerunning
 		if keys[pygame.K_LEFT]:

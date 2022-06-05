@@ -1,25 +1,31 @@
+import math
+import perspective
+import perspectivesolids
+from vectorfunctions import *
+
+
+
 def addVector ( e, coords, color ):
-	e.append ( ( coords, (0,0,0), color ) )
-	e.append ( ( coords, (coords[0]-math.copysign(0.1,coords[0]),coords[1],coords[2]), color ) )
-	e.append ( ( coords, (coords[0],coords[1]-math.copysign(0.1,coords[1]),coords[2]), color ) )
-	e.append ( ( coords, (coords[0],coords[1],coords[2]-math.copysign(0.1,coords[2])), color ) )
+	e.addEdge ( coords, (0,0,0), color )
+	e.addEdge ( coords, (coords[0]-math.copysign(0.1,coords[0]),coords[1],coords[2]), color )
+	e.addEdge ( coords, (coords[0],coords[1]-math.copysign(0.1,coords[1]),coords[2]), color )
+	e.addEdge ( coords, (coords[0],coords[1],coords[2]-math.copysign(0.1,coords[2])), color )
 
 
 
-def createEx20_6c ():
-	e = perspectivesolides.Edges()
+def createEx20_6c (e):
 
 	colorAxes = (100,100,100)
-	e.edges.append ( ( (-10,0,0), (10,0,0), colorAxes ) )
-	e.edges.append ( ( (0,-10,0), (0,10,0), colorAxes ) )
-	e.edges.append ( ( (0,0,-10), (0,0,10), colorAxes ) )
+	e.addEdge ( (-10,0,0), (10,0,0), colorAxes )
+	e.addEdge ( (0,-10,0), (0,10,0), colorAxes )
+	e.addEdge ( (0,0,-10), (0,0,10), colorAxes )
 
 	e.lettresXYZ ( 11, 2, colorAxes )
 
 	addVector ( e, (1,4,-1), (250,200,0) )
 
 	colorTarget = (100,100,250)
-	e.append ( ( (3,-10,2), (3,10,2), colorTarget ) )
+	e.addEdge ( (3,-10,2), (3,10,2), colorTarget )
 
 	colorTry = (10,250,10)
 	addVector ( e, (3,(-16+6*math.sqrt(301))/46,2), colorTry )
@@ -29,54 +35,49 @@ def createEx20_6c ():
 	addVector ( e, (3,(-4+math.sqrt(2661))/23,2), colorTry )
 	addVector ( e, (3,(-4-math.sqrt(2661))/23,2), colorTry )
 
-	return e
 
 
 
 
 
-
-def test_20200205_gp_ex_2():
+def test_20200205_gp_ex_2(e):
 	colorCube = (180,180,180)
 	colorD1 = (10,255,10)
 	colorD2 = (255,10,10)
 	colorPQ = (10,10,255)
 	deltaColor = 90
 
-	e=[]
+	e.addEdge ( (+5,+5,+5), (+5,+5,-5), colorCube )
+	e.addEdge ( (+5,+5,+5), (+5,-5,+5), colorCube )
+	e.addEdge ( (+5,-5,-5), (+5,+5,-5), colorCube )
+	e.addEdge ( (+5,-5,-5), (+5,-5,+5), colorCube )
 
-	e.append ( ( (+5,+5,+5), (+5,+5,-5), colorCube ) )
-	e.append ( ( (+5,+5,+5), (+5,-5,+5), colorCube ) )
-	e.append ( ( (+5,-5,-5), (+5,+5,-5), colorCube ) )
-	e.append ( ( (+5,-5,-5), (+5,-5,+5), colorCube ) )
+	e.addEdge ( (-5,+5,+5), (+5,+5,+5), colorCube )
+	e.addEdge ( (-5,+5,-5), (+5,+5,-5), colorCube )
+	e.addEdge ( (-5,-5,-5), (+5,-5,-5), colorCube )
+	e.addEdge ( (-5,-5,+5), (+5,-5,+5), colorCube )
 
-	e.append ( ( (-5,+5,+5), (+5,+5,+5), colorCube ) )
-	e.append ( ( (-5,+5,-5), (+5,+5,-5), colorCube ) )
-	e.append ( ( (-5,-5,-5), (+5,-5,-5), colorCube ) )
-	e.append ( ( (-5,-5,+5), (+5,-5,+5), colorCube ) )
+	e.addEdge ( (-5,+5,+5), (-5,+5,-5), colorCube )
+	e.addEdge ( (-5,+5,+5), (-5,-5,+5), colorCube )
+	e.addEdge ( (-5,-5,-5), (-5,+5,-5), colorCube )
+	e.addEdge ( (-5,-5,-5), (-5,-5,+5), colorCube )
 
-	e.append ( ( (-5,+5,+5), (-5,+5,-5), colorCube ) )
-	e.append ( ( (-5,+5,+5), (-5,-5,+5), colorCube ) )
-	e.append ( ( (-5,-5,-5), (-5,+5,-5), colorCube ) )
-	e.append ( ( (-5,-5,-5), (-5,-5,+5), colorCube ) )
-
-	e.append ( ( (-3,+5,+5), (-3,+5,+3), colorCube ) )
-	e.append ( ( (-5,+5,+3), (-3,+5,+3), colorCube ) )
-	e.append ( ( (-3,-5,+5), (-3,-5,+3), colorCube ) )
-	e.append ( ( (-5,-5,+3), (-3,-5,+3), colorCube ) )
-	e.append ( ( (-3,-5,+3), (-3,+5,+3), colorPQ ) )
+	e.addEdge ( (-3,+5,+5), (-3,+5,+3), colorCube )
+	e.addEdge ( (-5,+5,+3), (-3,+5,+3), colorCube )
+	e.addEdge ( (-3,-5,+5), (-3,-5,+3), colorCube )
+	e.addEdge ( (-5,-5,+3), (-3,-5,+3), colorCube )
+	e.addEdge ( (-3,-5,+3), (-3,+5,+3), colorPQ )
 
 	for n in range(-10,+10+1):
-		e.append ( ( (n/2,+5,-5), (n/2,-5,+5), colorD1 ) )
-		e.append ( ( (n/2,+5,+5), (n/2,-5,-5), colorD2 ) )
-
-	return e
+		e.addEdge ( (n/2,+5,-5), (n/2,-5,+5), colorD1 )
+		e.addEdge ( (n/2,+5,+5), (n/2,-5,-5), colorD2 )
 
 
 
 
 
-def addLine ( e, p0, p1, color, t, duration ):
+
+def addLine ( edges, p0, p1, color, t, duration ):
 	if ((len(p0)==3) and (len(p1)==3)):
 		div = 10
 		dt = duration/(div+1)
@@ -84,14 +85,14 @@ def addLine ( e, p0, p1, color, t, duration ):
 		pp = p0
 		for n in range(div):
 			pn = pointPlusVector ( pp, v )
-			e.append ( ( pp, pn, (255,255,255), t, t+dt*2 ) )
-			e.append ( ( pp, pn, color, t+dt*2 ) )
+			edges.addEdge ( pp, pn, (255,255,255), t, t+dt*2 )
+			edges.addEdge ( pp, pn, color, t+dt*2 )
 			pp = pn
 			t += dt
 
 
 
-def addLineProjection ( e, p0, p1, center, planeP0, planeNormal, color, t, duration ):
+def addLineProjection ( edges, p0, p1, center, planeP0, planeNormal, color, t, duration ):
 	if ((len(p0)==3) and (len(p1)==3)):
 		div = 10
 		dt = duration/(div+1)
@@ -106,15 +107,14 @@ def addLineProjection ( e, p0, p1, center, planeP0, planeNormal, color, t, durat
 			except ValueError:
 				ok = False
 			if (ok and (distPoints(ppProj,pnProj) < 20)):
-				e.append ( ( pp, pn, (255,255,255), t, t+dt*2 ) )
-				e.append ( ( pp, pn, color, t+dt*2 ) )
+				edges.addEdge ( pp, pn, (255,255,255), t, t+dt*2 )
+				edges.addEdge ( pp, pn, color, t+dt*2 )
 			pp = pn
 			t += dt
 
 
 
-def projectionCircleHyperbole():
-	e = [];
+def projectionCircleHyperbole(edges):
 	t = 0.0;
 
 	colorSq1 = ( 100, 200, 20 )
@@ -128,25 +128,25 @@ def projectionCircleHyperbole():
 	projPlaneP0 = ( 0,0,0 )
 	projPlaneNormal = ( 0,0,1 )
 
-	e.append ( ( projCenter, projCenterBase, colorCenter ) )
-	e.append ( ( projCenterBase, ( 0, 0, 0 ), colorCenter ) ) 
-	e.append ( ( (0,20,0), (0,-20,0), colorConstruction ) )
-	e.append ( ( (0,-20,0), (30,-20,0), colorConstruction ) )
-	e.append ( ( (30,-20,0), (30,20,0), colorConstruction ) )
-	e.append ( ( (30,20,0), (0,20,0), colorConstruction ) )
+	edges.addEdge ( projCenter, projCenterBase, colorCenter )
+	edges.addEdge ( projCenterBase, ( 0, 0, 0 ), colorCenter ) 
+	edges.addEdge ( (0,20,0), (0,-20,0), colorConstruction )
+	edges.addEdge ( (0,-20,0), (30,-20,0), colorConstruction )
+	edges.addEdge ( (30,-20,0), (30,20,0), colorConstruction )
+	edges.addEdge ( (30,20,0), (0,20,0), colorConstruction )
 
 	pA = ( 0, 5, 0 )
 	pB = ( 0, 5, 10 )
 	pC = ( 0, -5, 10 )
 	pD = ( 0, -5, 0 )
 
-	# e.append ( ( pA, pB, colorSq1, t ) )
+	# edges.addEdge ( pA, pB, colorSq1, t )
 	t += 0.25
-	e.append ( ( pB, pC, colorSq1, t ) )
+	edges.addEdge ( pB, pC, colorSq1, t )
 	t += 0.25
-	e.append ( ( pC, pD, colorSq1, t ) )
+	edges.addEdge ( pC, pD, colorSq1, t )
 	t += 0.25
-	e.append ( ( pD, pA, colorSq1, t ) )
+	edges.addEdge ( pD, pA, colorSq1, t )
 	t += round(t)
 
 	semiDiagSq = 5*2**0.5
@@ -154,13 +154,13 @@ def projectionCircleHyperbole():
 	pF = ( 0,0+semiDiagSq,5 )
 	pG = ( 0,0,5-semiDiagSq )
 	pH = ( 0,0-semiDiagSq,5 )
-	e.append ( ( pE, pF, colorSq2, t ) )
+	edges.addEdge ( pE, pF, colorSq2, t )
 	t += 0.25
-	e.append ( ( pF, pG, colorSq2, t ) )
+	edges.addEdge ( pF, pG, colorSq2, t )
 	t += 0.25
-	e.append ( ( pG, pH, colorSq2, t ) )
+	edges.addEdge ( pG, pH, colorSq2, t )
 	t += 0.25
-	e.append ( ( pH, pE, colorSq2, t ) )
+	edges.addEdge ( pH, pE, colorSq2, t )
 	t += round(t)
 
 	pAp = projectionCenterPointPlane ( projCenter, pA, projPlaneP0, projPlaneNormal )
@@ -172,24 +172,20 @@ def projectionCircleHyperbole():
 	pGp = projectionCenterPointPlane ( projCenter, pG, projPlaneP0, projPlaneNormal )
 	pHp = projectionCenterPointPlane ( projCenter, pH, projPlaneP0, projPlaneNormal )
 
-	addLine ( e, projCenter, pB, colorConstruction, t, 1 )
-	addLine ( e, pB, pBp, colorConstruction, t, 1 )
+	addLine ( edges, projCenter, pB, colorConstruction, t, 1 )
+	addLine ( edges, pB, pBp, colorConstruction, t, 1 )
 
 	torig=t
-	addLine ( e, pA, pB, colorSq1, t, 1 )
-	addLineProjection ( e, pA, pB, projCenter, projPlaneP0, projPlaneNormal, colorSq1, torig, 1 )
-
-
-
-	return e
+	addLine ( edges, pA, pB, colorSq1, t, 1 )
+	addLineProjection ( edges, pA, pB, projCenter, projPlaneP0, projPlaneNormal, colorSq1, torig, 1 )
 
 
 
 
 
-def chessboard():
-	e=[];
 
+
+def chessboard(edges):
 	colorChessboard = ( 80, 80, 80 )
 	colorProjectedChessboard = ( 180, 180, 180 )
 	colorBlackSquares = ( 0, 190, 0 )
@@ -204,8 +200,8 @@ def chessboard():
 	baseobs = ( obs[0],obs[1],0 )
 
 	for n in range ( squares+1 ):
-		e.append ( ( ( n*sqSize, 0, 0 ), ( n*sqSize, chessboardSize, 0 ), colorChessboard ) )
-		e.append ( ( ( 0, n*sqSize, 0 ), ( chessboardSize, n*sqSize, 0 ), colorChessboard ) )
+		edges.addEdge ( ( n*sqSize, 0, 0 ), ( n*sqSize, chessboardSize, 0 ), colorChessboard )
+		edges.addEdge ( ( 0, n*sqSize, 0 ), ( chessboardSize, n*sqSize, 0 ), colorChessboard )
 
 	for px in range ( squares ):
 		for py in range ( squares ):
@@ -213,20 +209,20 @@ def chessboard():
 				x = px*sqSize
 				y = py*sqSize
 				for n in range ( 1,10 ):
-					e.append ( ( ( x+(n/10*sqSize), y, 0 ), ( x+(n/10*sqSize), y+sqSize, 0 ), colorBlackSquares ) )
+					edges.addEdge ( ( x+(n/10*sqSize), y, 0 ), ( x+(n/10*sqSize), y+sqSize, 0 ), colorBlackSquares )
 
-	e.append ( ( (-chessboardSize*0.1,0,0), (chessboardSize*1.1,0,0), colorFrame ) )
-	e.append ( ( (-chessboardSize*0.1,0,chessboardSize), (chessboardSize*1.1,0,chessboardSize), colorFrame ) )
-	e.append ( ( (-chessboardSize*0.1,0,0), (-chessboardSize*0.1,0,chessboardSize), colorFrame ) )
-	e.append ( ( (chessboardSize*1.1,0,0), (chessboardSize*1.1,0,chessboardSize), colorFrame ) )
+	edges.addEdge ( (-chessboardSize*0.1,0,0), (chessboardSize*1.1,0,0), colorFrame )
+	edges.addEdge ( (-chessboardSize*0.1,0,chessboardSize), (chessboardSize*1.1,0,chessboardSize), colorFrame )
+	edges.addEdge ( (-chessboardSize*0.1,0,0), (-chessboardSize*0.1,0,chessboardSize), colorFrame )
+	edges.addEdge ( (chessboardSize*1.1,0,0), (chessboardSize*1.1,0,chessboardSize), colorFrame )
 
-	e.append ( ( obs, baseobs, colorFrame ) )
-	e.append ( ( baseobs, (obs[0],0,0), colorFrame ) )
+	edges.addEdge ( obs, baseobs, colorFrame )
+	edges.addEdge ( baseobs, (obs[0],0,0), colorFrame )
 
 	corner = (0,squares*sqSize,0)
 
-	e.append ( ( obs, corner, colorRays ) )
-	e.append ( ( baseobs, corner, colorRays ) )
+	edges.addEdge ( obs, corner, colorRays )
+	edges.addEdge ( baseobs, corner, colorRays )
 
 	projCorner = pointPlusVector (
 		obs,
@@ -235,23 +231,35 @@ def chessboard():
 	)
 	baseprojCorner = ( projCorner[0],projCorner[1],0 )
 
-	e.append ( ( projCorner, baseprojCorner, colorRays ) )
+	edges.addEdge ( projCorner, baseprojCorner, colorRays )
 
-	e.append ( ( projCorner, (0,0,0), colorProjectedChessboard ) )
+	edges.addEdge ( projCorner, (0,0,0), colorProjectedChessboard )
 
 	for n in range ( 1, squares+1 ):
-		e.append ( ( obs, ( 0,n*sqSize,0 ), colorRays ) )
-	
-
-	return e
+		edges.addEdge ( obs, ( 0,n*sqSize,0 ), colorRays )
 
 
 
+print ( "" )
+print ( "1 chessboard" )
+print ( "2 projectionCircleHyperbole" )
+print ( "3 Ex20_6c" )
+print ( "4 test_20200205_gp_ex_2" )
+print ( "" )
+choice = input ( "choice? " )
 
+edges = perspectivesolids.Edges()
 
+if (choice=="1"): chessboard(edges)
+elif (choice=="2"): projectionCircleHyperbole(edges)
+elif (choice=="3"): createEx20_6c(edges)
+elif (choice=="4"): test_20200205_gp_ex_2(edges)
+else:
+	print ( "" )
+	print ( "wrong choice..." )
+	exit()
 
-	# figure = createEtoile()
-	# figure = createEx20_6c()
-	# figure = test_20200205_gp_ex_2()
-	# figure = chessboard()
-	# figure = projectionCircleHyperbole()
+perspective.display ( edges )
+
+edge = Edges()
+
