@@ -118,21 +118,21 @@ class _intersectPlaneCuboid:
 
 	def setiEdge ( self, x,y,z,what,rotateAxis=0 ):
 		if rotateAxis==0:
-			self.iedgesB0[x+1,y+1,z+1] = what
+			self.iedgesB0[x+1][y+1][z+1] = what
 		elif rotateAxis==1:
-			self.iedgesB0[z+1,x+1,y+1] = what
+			self.iedgesB0[z+1][x+1][y+1] = what
 		elif rotateAxis==2:
-			self.iedgesB0[y+1,z+1,x+1] = what
+			self.iedgesB0[y+1][z+1][x+1] = what
 		else:
 			raise
 
 	def getiEdge ( self, x,y,z,rotateAxis=0 ):
 		if rotateAxis==0:
-			return self.iedgesB0[x+1,y+1,z+1]
+			return self.iedgesB0[x+1][y+1][z+1]
 		elif rotateAxis==1:
-			return self.iedgesB0[z+1,x+1,y+1]
+			return self.iedgesB0[z+1][x+1][y+1]
 		elif rotateAxis==2:
-			return self.iedgesB0[y+1,z+1,x+1]
+			return self.iedgesB0[y+1][z+1][x+1]
 		else:
 			raise
 
@@ -143,19 +143,19 @@ class _intersectPlaneCuboid:
 		for x in range(-1,2):
 			for y in range(-1,2):
 				for z in range(-1,2):
-					if (getiEdge(x,y,z) != None):
+					if (self.getiEdge(x,y,z) != None):
 						return (x,y,z)
 		return (None,None,None)
 
 	def populatePolygon ( self, vertex ):
 		thisintersection = self.getiEdge ( vertex[0],vertex[1],vertex[2] )
-		if (self.polygon==[] or (thisintersection != self.polygon[self.polygon.length-1])):
-			self.polygon += thisintersection
-		self.used[vertex[0],vertex[1],vertex[2]] = True
+		if (self.polygon==[] or (thisintersection != self.polygon[len(self.polygon)-1])):
+			self.polygon.append ( thisintersection )
+		self.used[vertex[0]][vertex[1]][vertex[2]] = True
 		# search another edge intersection in the same face as this one
-		for x in range(-1,2,2):
-			for y in range(-1,2,2):
-				for z in range(-1,2,2):
+		for x in range(-1,2,1):
+			for y in range(-1,2,1):
+				for z in range(-1,2,1):
 					if (
 						(
 							(x!=0 and x==vertex[0]) 
@@ -165,7 +165,7 @@ class _intersectPlaneCuboid:
 							(z!=0 and z==vertex[2]) 
 						)
 						and 
-						(not used[x,y,z])
+						(not self.used[x][y][z])
 						and
 						(self.getiEdge(x, y, z) != None)
 					):
@@ -175,9 +175,9 @@ class _intersectPlaneCuboid:
 	def buildPolygon ( self ):
 		self.polygon = []
 		self.used = [[[False for x in range(3)] for y in range(3)] for z in range(3)] # array 3*3*3
-		(x,y,z) = findOneEdgeIntersection()
+		(x,y,z) = self.findOneEdgeIntersection()
 		if (x!=None):
-			populatePolygon ( (x,y,z) )
+			self.populatePolygon ( (x,y,z) )
 
 	def searchIntersectionsWithEdges ( self ):
 		for rotateAxis in range(3):
@@ -199,7 +199,6 @@ class _intersectPlaneCuboid:
 						),
 						rotateAxis
 					)
-
 
 
 def intersectPlaneCuboid ( planeP0, planeNormal, cubeC, cubeHE1, cubeHE2, cubeHE3 ):

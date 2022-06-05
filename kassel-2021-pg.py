@@ -2,16 +2,16 @@
 ## https://github.com/gustabmo/perspective
 ## needs PYGAME https://www.pygame.org/
 
-import solids
+import perspectivesolids
 import perspective
 from vectorfunctions import *
 
 
-edgelist = []
+edges = perspectivesolids.Edges()
 
 center = (0,0,0)
-base=orthogonalBase((0,0,2),(0,2,0))
-solids.cubeoctahedron ( edgelist, center, base[2], base[1], (120,190,70) )
+base = orthogonalBase((0,0,2),(0,2,0))
+edges.cubeOctahedron ( center, base[2], base[1], (120,190,70) )
 
 A = pointPlusVector ( center, base[1] )
 B = pointPlusVector ( center, base[2] )
@@ -23,9 +23,9 @@ AtoBtime=15
 
 for i in range(0,AtoBsteps*5):
 	MP = pointPlusVector ( A, vecAB, i/AtoBsteps )
-	solids.cross3D ( edgelist, MP, 0.05, (255,255,255), 1+i/AtoBsteps*AtoBtime, 1+(i+1)/AtoBsteps*AtoBtime )
+	edges.cross3D ( MP, 0.05, (255,255,255), 1+i/AtoBsteps*AtoBtime, 1+(i+1)/AtoBsteps*AtoBtime )
 	PN = vectorAB ( MP, center )
-	solids.drawPlan ( edgelist, P0, PN, 3, (0,100,180), 1+i/AtoBsteps*AtoBtime, 1+(i+1)/AtoBsteps*AtoBtime )
+	edges.plane ( P0, PN, 3, (0,100,180), 1+i/AtoBsteps*AtoBtime, 1+(i+1)/AtoBsteps*AtoBtime )
 
 
-perspective.display ( edgelist )
+perspective.display ( edges )
