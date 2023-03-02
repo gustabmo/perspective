@@ -8,7 +8,7 @@
 
 import sys
 import math
-import time
+import time as time_lib
 import pygame
 import pygame.freetype
 from vectorfunctions import *
@@ -34,7 +34,7 @@ def point3Dto2D ( P,eye,SC,vecEyeSC,horizS,vertS ):
 	else:
 		a = dotProduct(vecEyeSC,vecEyeSC)/dPEPESC
 
-	# PinS : le point P projecte' dans l'ecran S (S=Screen)
+	# PinS : le point P projecte' sur l'ecran S (S=Screen)
 	vectorSCtoPinS = vectorAB ( SC, pointPlusVector ( eye, vecEyeP, a ) )
 
 	if (abs(dotProduct(vectorSCtoPinS,vecEyeSC)) > 0.0001):
@@ -52,18 +52,18 @@ def drawPerspective ( win, textfont, eye, pov, time, edges ):
 	vecEyeSC = vectorAB ( eye, pov, distScreen*1.5 / distPoints(eye,pov) )
 	SC = pointPlusVector ( eye, vecEyeSC )
 
-	# vertS/horizS : les vecteurs vertical et horizontal vers le haut et la droite de l'ecran, avec longueur 1
+	# vertS/horizS : les vecteurs vertical et horizontal vers le haut et vers la droite de l'ecran, avec longueur 1
 	if (vecEyeSC[0]==0) and (vecEyeSC[1]==0):
-		horizS = ( 1,0,0 )
+		horizS = ( -1,0,0 )
 		if (vecEyeSC[2]==0):
 			vertS = ( 0,1,0 )
 		else:
 			vertS = normalizeVector ( ( 0,-vecEyeSC[2],0 ) )
 	elif (vecEyeSC[2]==0):
-		horizS = normalizeVector ( (-vecEyeSC[1], vecEyeSC[0], 0 ) )
+		horizS = normalizeVector ( (vecEyeSC[1], -vecEyeSC[0], 0 ) )
 		vertS = (0,0,1)
 	else:
-		horizS = normalizeVector ( (-vecEyeSC[1], vecEyeSC[0], 0 ) )
+		horizS = normalizeVector ( (vecEyeSC[1], -vecEyeSC[0], 0 ) )
 		if (vecEyeSC[2]>=0):
 			vertS = normalizeVector ( (-vecEyeSC[0], -vecEyeSC[1], (vecEyeSC[0]**2+vecEyeSC[1]**2)/vecEyeSC[2] ) )
 		else:
@@ -93,7 +93,7 @@ def drawPerspective ( win, textfont, eye, pov, time, edges ):
 
 	
 
-def display ( edges ):
+def display ( edges, pov=[0,0,0] ):
 	pygame.init()
 	win=pygame.display.set_mode((winSizeX,winSizeY))
 	clock=pygame.time.Clock()
@@ -104,7 +104,6 @@ def display ( edges ):
 	rotspeed = +0.1
 	radius = dim*2
 	time = 0
-	pov = [0,0,0]
 	running = True
 	timerunning = True
 	height = dim*0.6
@@ -119,7 +118,7 @@ def display ( edges ):
 		drawPerspective ( 
 			win, 
 			textfont,
-			( math.sin(angle)*radius, math.cos(angle)*radius, height ), 
+			( pov[0]+math.sin(angle)*radius, pov[1]+math.cos(angle)*radius, height ), 
 			pov, 
 			time, 
 			edges 
@@ -157,5 +156,11 @@ def display ( edges ):
 		if (timerunning):
 			time += 0.03
 
-	time.sleep(0.2)
+	time_lib.sleep(1)
 	pygame.quit()
+
+
+
+if __name__ == '__main__':
+    print ( "this is a library used by other modules" )
+    

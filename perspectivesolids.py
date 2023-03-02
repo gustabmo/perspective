@@ -56,6 +56,20 @@ class Edges:
 		self.edges.append ( ( P0, P1, color, T0, T1 ) )
 
 
+	def parallelogram ( self, center, base0, base1, color=None, T0=None, T1=None ) :
+		self.setDefaultColorAndTime(color, T0, T1)
+
+		A = pointPlus2Vectors ( center, base0, base1, -1, -1 )
+		B = pointPlus2Vectors ( center, base0, base1, -1, +1 )
+		C = pointPlus2Vectors ( center, base0, base1, +1, +1 )
+		D = pointPlus2Vectors ( center, base0, base1, +1, -1 )
+
+		self.addEdge ( A, B )
+		self.addEdge ( B, C )
+		self.addEdge ( C, D )
+		self.addEdge ( D, A )
+
+
 	def cuboid ( self, center, base0, base1, base2, color=None, T0=None, T1=None ) :
 		self.setDefaultColorAndTime(color, T0, T1)
 
@@ -206,3 +220,39 @@ class Edges:
 			last = p
 		if (last != None):
 			self.addEdge ( last, first )
+
+	def write ( self, p0, up, right, text, color=None, T0=None, T1=None ):
+		self.setDefaultColorAndTime(color, T0, T1)
+		for c in text:
+			if (c=="0"):
+				self.polygon (
+					(
+						pointPlus2Vectors(p0,up,right,0,0.2),
+						pointPlus2Vectors(p0,up,right,0,0.8),
+						pointPlus2Vectors(p0,up,right,0.2,1),
+						pointPlus2Vectors(p0,up,right,0.8,1),
+						pointPlus2Vectors(p0,up,right,1,0.8),
+						pointPlus2Vectors(p0,up,right,1,0.2),
+						pointPlus2Vectors(p0,up,right,0.8,0),
+						pointPlus2Vectors(p0,up,right,0.2,0),
+						pointPlus2Vectors(p0,up,right,0,0.2)
+					),
+					color,T0,T1 
+				)
+				p0 = pointPlusVector ( p0, right, 1.1 )
+			elif (c=="-"):
+				self.addEdge ( pointPlusVector(p0,up,0.5), pointPlus2Vectors(p0,up,right,0.5,0.8), color,T0,T1 )
+				p0 = pointPlusVector ( p0, right, 1 )
+			elif (c=="+"):
+				self.addEdge ( pointPlusVector(p0,up,0.5), pointPlus2Vectors(p0,up,right,0.5,0.8), color,T0,T1 )
+				self.addEdge ( pointPlus2Vectors(p0,up,right,0.1,0.3), pointPlus2Vectors(p0,up,right,0.9,0.3), color,T0,T1 )
+				p0 = pointPlusVector ( p0, right, 1 )
+			elif (c=="1"):
+				self.addEdge ( pointPlusVector(p0,up,0), pointPlus2Vectors(p0,up,right,0,0.8), color,T0,T1 )
+				self.addEdge ( pointPlus2Vectors(p0,up,right,0,0.4), pointPlus2Vectors(p0,up,right,1,0.4), color,T0,T1 )
+				self.addEdge ( pointPlus2Vectors(p0,up,right,1,0.4), pointPlus2Vectors(p0,up,right,0.4,0.15), color,T0,T1 )
+				p0 = pointPlusVector ( p0, right, 1 )
+
+
+if __name__ == '__main__':
+    print ( "this is a library used by other modules" )

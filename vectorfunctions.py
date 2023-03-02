@@ -19,6 +19,14 @@ def pointPlusVector ( A,V, factor=1 ):
 	)
 
 
+def pointPlus2Vectors ( A,V1,V2, factor1=1, factor2=1 ):
+	return (
+		A[0]+V1[0]*factor1+V2[0]*factor2,
+		A[1]+V1[1]*factor1+V2[1]*factor2,
+		A[2]+V1[2]*factor1+V2[2]*factor2
+	)
+
+
 def vectorTimesFactor ( V,F ):
 	return ( V[0]*F, V[1]*F, V[2]*F )
 
@@ -206,5 +214,5 @@ def intersectPlaneCuboid ( planeP0, planeNormal, cubeC, cubeHE1, cubeHE2, cubeHE
 
 
 
-
-
+if __name__ == '__main__':
+    print ( "this is a library used by other modules" )
