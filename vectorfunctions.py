@@ -1,6 +1,9 @@
 ## guexel@gmail.com 
 ## https://github.com/gustabmo/perspective
 
+if __name__ == '__main__':
+    print ( "this is a library used by other modules" )
+
 
 # vector from point A to point B
 def vectorAB ( A,B,factor=1 ):
@@ -214,5 +217,3 @@ def intersectPlaneCuboid ( planeP0, planeNormal, cubeC, cubeHE1, cubeHE2, cubeHE
 
 
 
-if __name__ == '__main__':
-    print ( "this is a library used by other modules" )

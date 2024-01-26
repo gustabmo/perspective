@@ -1,6 +1,10 @@
 ## guexel@gmail.com 
 ## https://github.com/gustabmo/perspective
 
+if __name__ == '__main__':
+    print ( "this is a library used by other modules" )
+
+
 from vectorfunctions import *
 
 
@@ -254,5 +258,3 @@ class Edges:
 				p0 = pointPlusVector ( p0, right, 1 )
 
 
-if __name__ == '__main__':
-    print ( "this is a library used by other modules" )

@@ -6,6 +6,10 @@
 ## pip install pygame
 ##
 
+if __name__ == '__main__':
+    print ( "this is a library used by other modules" )
+
+
 import sys
 import math
 import time as time_lib
@@ -161,6 +165,4 @@ def display ( edges, pov=[0,0,0] ):
 
 
 
-if __name__ == '__main__':
-    print ( "this is a library used by other modules" )
     
