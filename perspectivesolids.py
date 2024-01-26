@@ -13,7 +13,7 @@ class Edges:
 	def __init__(self):
 		self.edges = []
 		self.setDefaultTimeEternal()
-		self.setDefaultColor ( (255,255,255) );
+		self.setDefaultColor ( (255,255,255), 1 );
 
 
 	def setDefaultTime ( self, newT0, newT1 ):
@@ -27,13 +27,20 @@ class Edges:
 		self.setDefaultTime ( -1, 1e10 )
 
 
-	def setDefaultColor ( self, color ):
+	def setDefaultColor ( self, color, width=None ):
 		if (color!=None):
-			self.defaultColor = color;
+			self.defaultColor = color
+		if (width!=None):
+			self.defaultWidth = width
 
 
-	def setDefaultColorAndTime ( self, color, newT0, newT1 ):
-		self.setDefaultColor(color)
+	def setDefaultWidth ( self, width ):
+		if (width!=None):
+			self.defaultWidth = width
+
+
+	def setDefaultColorAndTime ( self, color, newT0, newT1, width=None ):
+		self.setDefaultColor(color,width)
 		self.setDefaultTime(newT0, newT1)
 
 
@@ -41,27 +48,23 @@ class Edges:
 		return len ( self.edges )
 		
 
-	def maxDimension ( self ):
-		if len(self.edges) < 1:
-			return 1
-		mincoord = list ( self.edges[0][0] )
-		maxcoord = list ( self.edges[0][0] )
+	def maxDistance ( self, center, atLeast=0 ):
+		maxD = atLeast
 		for e in self.edges:
-			for i in range(3):
-				mincoord[i] = min ( mincoord[i], e[0][i], e[1][i] )
-				maxcoord[i] = max ( maxcoord[i], e[0][i], e[1][i] )
-		return max ( maxcoord[0]-mincoord[0], maxcoord[1]-mincoord[1], maxcoord[2]-mincoord[2], 0.1 )
+			maxD = max ( maxD, pointsDistance(center,e[0]), pointsDistance(center,e[1]) )
+		return maxD
 
 
-	def addEdge ( self, P0, P1, color=None, T0=None, T1=None ):
+	def addEdge ( self, P0, P1, color=None, T0=None, T1=None, width=None ):
 		if (color==None): color = self.defaultColor
+		if (width==None): width = self.defaultWidth
 		if (T0==None): T0 = self.defaultT0
 		if (T1==None): T1 = self.defaultT1
-		self.edges.append ( ( P0, P1, color, T0, T1 ) )
+		self.edges.append ( ( P0, P1, color, T0, T1, width ) )
 
 
-	def parallelogram ( self, center, base0, base1, color=None, T0=None, T1=None ) :
-		self.setDefaultColorAndTime(color, T0, T1)
+	def parallelogram ( self, center, base0, base1, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, width)
 
 		A = pointPlus2Vectors ( center, base0, base1, -1, -1 )
 		B = pointPlus2Vectors ( center, base0, base1, -1, +1 )
@@ -74,8 +77,8 @@ class Edges:
 		self.addEdge ( D, A )
 
 
-	def cuboid ( self, center, base0, base1, base2, color=None, T0=None, T1=None ) :
-		self.setDefaultColorAndTime(color, T0, T1)
+	def cuboid ( self, center, base0, base1, base2, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, width)
 
 		A = pointPlusVector ( pointPlusVector ( pointPlusVector ( center, base0, +1 ), base1, +1 ), base2, +1 )
 		B = pointPlusVector ( pointPlusVector ( pointPlusVector ( center, base0, +1 ), base1, +1 ), base2, -1 )
@@ -105,8 +108,8 @@ class Edges:
 		self.cuboid ( center, base[0], base[1], base[2], color, T0, T1 )
 
 
-	def octahedron ( self, center, base0, base1, base2, color=None, T0=None, T1=None ) :
-		self.setDefaultColorAndTime(color, T0, T1)
+	def octahedron ( self, center, base0, base1, base2, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, widt)
 
 		A = pointPlusVector ( center, base0 )	
 		B = pointPlusVector ( center, base0, -1 )	
@@ -134,8 +137,8 @@ class Edges:
 		self.octahedron ( edges, center, base[0], base[1], base[2], color, T0, T1 )
 
 
-	def cubeOctahedron ( self, center, up, right, color=None, T0=None, T1=None ) :
-		self.setDefaultColorAndTime(color, T0, T1)
+	def cubeOctahedron ( self, center, up, right, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, width)
 		base2 = orthogonalBase ( up, right )
 		base1 = [
 			vectorTimesFactor ( base2[0], 0.5 ),
@@ -172,15 +175,15 @@ class Edges:
 		losangeInFace ( 2, -1 )
 
 
-	def cross3D ( self, P, len, color=None, T0=None, T1=None ) :
-		self.setDefaultColorAndTime(color, T0, T1)
+	def cross3D ( self, P, len, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, width)
 		self.addEdge ( pointPlusVector ( P, (-len,0,0) ), pointPlusVector ( P, (+len,0,0) ) )
 		self.addEdge ( pointPlusVector ( P, (0,-len,0) ), pointPlusVector ( P, (0,+len,0) ) )
 		self.addEdge ( pointPlusVector ( P, (0,0,-len) ), pointPlusVector ( P, (0,0,+len) ) )
 
 
-	def plane ( self, P0, PN, radius, color=None, T0=None, T1=None ) :
-		self.setDefaultColorAndTime(color, T0, T1)
+	def plane ( self, P0, PN, radius, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, width)
 
 		V1 = crossProduct ( PN, P0 )
 		if lengthVector(V1)==0: V1 = crossProduct ( PN, (0,0,1) )
@@ -194,8 +197,8 @@ class Edges:
 			self.addEdge ( pointPlusVector(D1,V2,+w*radius), pointPlusVector(D1,V2,-w*radius) )
 
 
-	def lettresXYZ ( self, pos, size, color=None, T0=None, T1=None ) :
-		self.setDefaultColorAndTime(color, T0, T1)
+	def lettresXYZ ( self, pos, size, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, width)
 
 		# lettre X
 		self.addEdge ( (pos+size/2,0,0), (pos+size/2+size,size,0) )
@@ -212,8 +215,8 @@ class Edges:
 		self.addEdge ( (0,size,pos+size/2+size), (0,size,pos+size/2) )
 
 
-	def polygon ( self, poly, color=None, T0=None, T1=None ) :
-		self.setDefaultColorAndTime(color, T0, T1)
+	def polygon ( self, poly, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, width)
 		first = None
 		last = None
 		for p in poly:
@@ -225,8 +228,8 @@ class Edges:
 		if (last != None):
 			self.addEdge ( last, first )
 
-	def write ( self, p0, up, right, text, color=None, T0=None, T1=None ):
-		self.setDefaultColorAndTime(color, T0, T1)
+	def write ( self, p0, up, right, text, color=None, T0=None, T1=None, width=None ):
+		self.setDefaultColorAndTime(color, T0, T1, width)
 		for c in text:
 			if (c=="0"):
 				self.polygon (

@@ -53,7 +53,7 @@ def point3Dto2D ( P,eye,SC,vecEyeSC,horizS,vertS ):
 def drawPerspective ( win, textfont, eye, pov, time, edges ):
 	distScreen = (winSizeX/2)
 	# SC = ScreenCenter
-	vecEyeSC = vectorAB ( eye, pov, distScreen*1.5 / distPoints(eye,pov) )
+	vecEyeSC = vectorAB ( eye, pov, distScreen*1.5 / pointsDistance(eye,pov) )
 	SC = pointPlusVector ( eye, vecEyeSC )
 
 	# vertS/horizS : les vecteurs vertical et horizontal vers le haut et vers la droite de l'ecran, avec longueur 1
@@ -88,7 +88,8 @@ def drawPerspective ( win, textfont, eye, pov, time, edges ):
 				win, 
 				line[2], # color
 				point3Dto2D(line[0],eye,SC,vecEyeSC,horizS,vertS),
-				point3Dto2D(line[1],eye,SC,vecEyeSC,horizS,vertS)
+				point3Dto2D(line[1],eye,SC,vecEyeSC,horizS,vertS),
+				line[5] # width
 			)
 
 	textfont.render_to ( win, (3,3), "time:{:.2f}s".format(time), (130,130,130) )
@@ -103,56 +104,78 @@ def display ( edges, pov=[0,0,0] ):
 	clock=pygame.time.Clock()
 	textfont = pygame.freetype.Font("c:\\windows\\Fonts\\arial.ttf", 24)
 
-	dim = edges.maxDimension()
-	angle = 0
+	obsAngleH = 0
+	obsAngleV = 10/180*math.pi
+	obsRadius = edges.maxDistance(pov)*2
+
 	rotspeed = +0.1
-	radius = dim*2
 	time = 0
 	running = True
 	timerunning = True
-	height = dim*0.6
-
 
 	while (running):
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
 
-		angle += rotspeed/180*math.pi
+		obsAngleH += rotspeed/180*math.pi
 		drawPerspective ( 
 			win, 
 			textfont,
-			( pov[0]+math.sin(angle)*radius, pov[1]+math.cos(angle)*radius, height ), 
+			( 
+				pov[0] + ( obsRadius * math.cos(obsAngleV) * math.sin(obsAngleH) ),
+				pov[1] + ( obsRadius * math.cos(obsAngleV) * math.cos(obsAngleH) ),
+				pov[2] + ( obsRadius * math.sin(obsAngleV) )
+			), 
 			pov, 
 			time, 
 			edges 
 		)
 
+		
 		keys = pygame.key.get_pressed()
+
+		if keys[pygame.K_LEFT]: 
+			obsAngleH += 1/180*math.pi
+		if keys[pygame.K_RIGHT]: 
+			obsAngleH -= 1/180*math.pi
 		if keys[pygame.K_DOWN]:
-			radius += dim/10
+			obsAngleV = max ( obsAngleV - 1/180*math.pi, -89.99/180*math.pi )
 		if keys[pygame.K_UP]:
-			radius -= dim/10
+			obsAngleV = min ( obsAngleV + 1/180*math.pi, +89.99/180*math.pi )
+
+		if keys[pygame.K_a]:
+			pov[0] += obsRadius/50 * math.cos(obsAngleH)
+			pov[1] -= obsRadius/50 * math.sin(obsAngleH)
+		if keys[pygame.K_d]:
+			pov[0] -= obsRadius/50 * math.cos(obsAngleH)
+			pov[1] += obsRadius/50 * math.sin(obsAngleH)
+		if keys[pygame.K_w]:
+			pov[2] += obsRadius/50
+		if keys[pygame.K_s]:
+			pov[2] -= obsRadius/50
+
 		if keys[pygame.K_PAGEUP]:
-			height += dim/20
+			obsRadius *= 0.95
 		if keys[pygame.K_PAGEDOWN]:
-			height -= dim/20
-		if keys[pygame.K_INSERT]:
-			rotspeed -= 0.05
-		if keys[pygame.K_DELETE]:
+			obsRadius *= 1.05
+
+		if keys[pygame.K_f]:
 			rotspeed += 0.05
-		if keys[pygame.K_HOME]:
-			angle -= 1/180*math.pi
-		if keys[pygame.K_END]:
-			angle += 1/180*math.pi
+		if keys[pygame.K_g]:
+			rotspeed = 0
+		if keys[pygame.K_h]:
+			rotspeed -= 0.05
+
 		if keys[pygame.K_SPACE]:
 			timerunning = not timerunning
-		if keys[pygame.K_LEFT]:
+		if keys[pygame.K_HOME]:
 			time -= 0.1
 			timerunning = False
-		if keys[pygame.K_RIGHT]:
+		if keys[pygame.K_END]:
 			time += 0.1
 			timerunning = False
+
 		if keys[pygame.K_ESCAPE]:
 			running = False
 
@@ -160,9 +183,8 @@ def display ( edges, pov=[0,0,0] ):
 		if (timerunning):
 			time += 0.03
 
-	time_lib.sleep(1)
+	time_lib.sleep(0.5)
 	pygame.quit()
 
 
 
-    

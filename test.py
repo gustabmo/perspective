@@ -106,7 +106,7 @@ def addLineProjection ( edges, p0, p1, center, planeP0, planeNormal, color, t, d
 				pnProj = projectionCenterPointPlane ( center, pn, planeP0, planeNormal  )
 			except ValueError:
 				ok = False
-			if (ok and (distPoints(ppProj,pnProj) < 20)):
+			if (ok and (pointsDistance(ppProj,pnProj) < 20)):
 				edges.addEdge ( pp, pn, (255,255,255), t, t+dt*2 )
 				edges.addEdge ( pp, pn, color, t+dt*2 )
 			pp = pn

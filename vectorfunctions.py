@@ -43,7 +43,7 @@ def normalizeVector ( V ):
 
 
 ## distance between points
-def distPoints ( A,B ):
+def pointsDistance ( A,B ):
 	return ((B[0]-A[0])**2 + (B[1]-A[1])**2 + (B[2]-A[2])**2) ** 0.5
 
 
