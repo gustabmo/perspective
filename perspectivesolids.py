@@ -77,7 +77,14 @@ class Edges:
 		self.addEdge ( D, A )
 
 
-	def cuboid ( self, center, base0, base1, base2, color=None, T0=None, T1=None, width=None ) :
+	def cuboid ( self, 
+		center, base0, base1, base2, 
+		color=None, T0=None, T1=None, width=None,
+		drawCuboid=True,
+		drawProjection=False,drawCenterToPoint=False,
+		projectionCenter=None,projectionPlane=None,
+		drawProjectionSupportLines=False,supportProjectionPlane=None
+	) :
 		self.setDefaultColorAndTime(color, T0, T1, width)
 
 		A = pointPlusVector ( pointPlusVector ( pointPlusVector ( center, base0, +1 ), base1, +1 ), base2, +1 )
@@ -89,18 +96,59 @@ class Edges:
 		G = pointPlusVector ( pointPlusVector ( pointPlusVector ( center, base0, -1 ), base1, -1 ), base2, -1 )
 		H = pointPlusVector ( pointPlusVector ( pointPlusVector ( center, base0, -1 ), base1, -1 ), base2, +1 )
 
-		self.addEdge ( A, B ) 
-		self.addEdge ( B, C )
-		self.addEdge ( C, D )
-		self.addEdge ( D, A )
-		self.addEdge ( A, E )
-		self.addEdge ( B, F )
-		self.addEdge ( C, G )
-		self.addEdge ( D, H )
-		self.addEdge ( E, F )
-		self.addEdge ( F, G )
-		self.addEdge ( G, H )
-		self.addEdge ( H, E )
+		if drawCuboid:
+			self.addEdge ( A, B ) 
+			self.addEdge ( B, C )
+			self.addEdge ( C, D )
+			self.addEdge ( D, A )
+			self.addEdge ( A, E )
+			self.addEdge ( B, F )
+			self.addEdge ( C, G )
+			self.addEdge ( D, H )
+			self.addEdge ( E, F )
+			self.addEdge ( F, G )
+			self.addEdge ( G, H )
+			self.addEdge ( H, E )
+
+		if drawProjection or drawProjectionSupportLines:
+			Ap = projectPointOnPlane ( A, projectionCenter, projectionPlane )
+			Bp = projectPointOnPlane ( B, projectionCenter, projectionPlane )
+			Cp = projectPointOnPlane ( C, projectionCenter, projectionPlane )
+			Dp = projectPointOnPlane ( D, projectionCenter, projectionPlane )
+			Ep = projectPointOnPlane ( E, projectionCenter, projectionPlane )
+			Fp = projectPointOnPlane ( F, projectionCenter, projectionPlane )
+			Gp = projectPointOnPlane ( G, projectionCenter, projectionPlane )
+			Hp = projectPointOnPlane ( H, projectionCenter, projectionPlane )
+
+		if drawProjection:
+			self.addEdge ( Ap, Bp ) 
+			self.addEdge ( Bp, Cp )
+			self.addEdge ( Cp, Dp )
+			self.addEdge ( Dp, Ap )
+			self.addEdge ( Ap, Ep )
+			self.addEdge ( Bp, Fp )
+			self.addEdge ( Cp, Gp )
+			self.addEdge ( Dp, Hp )
+			self.addEdge ( Ep, Fp )
+			self.addEdge ( Fp, Gp )
+			self.addEdge ( Gp, Hp )
+			self.addEdge ( Hp, Ep )
+
+		if drawCenterToPoint:
+			self.addEdge ( projectionCenter, A )
+			self.addEdge ( projectionCenter, B )
+			self.addEdge ( projectionCenter, C )
+			self.addEdge ( projectionCenter, D )
+			self.addEdge ( projectionCenter, E )
+			self.addEdge ( projectionCenter, F )
+			self.addEdge ( projectionCenter, G )
+			self.addEdge ( projectionCenter, H )
+
+		if drawProjectionSupportLines:
+			pass
+
+	# end cuboid
+
 
 
 	def cube ( self, center, up, right, color=None, T0=None, T1=None ):
