@@ -50,10 +50,9 @@ def point3Dto2D ( P,eye,SC,vecEyeSC,horizS,vertS ):
 	)
 
 
-def drawPerspective ( win, textfont, eye, pov, time, edges ):
-	distScreen = (winSizeX/2)
+def drawPerspective ( win, textfont, eye, pov, distanceToScreen, time, edges ):
 	# SC = ScreenCenter
-	vecEyeSC = vectorAB ( eye, pov, distScreen*1.5 / pointsDistance(eye,pov) )
+	vecEyeSC = vectorAB ( eye, pov, distanceToScreen / pointsDistance(eye,pov) )
 	SC = pointPlusVector ( eye, vecEyeSC )
 
 	# vertS/horizS : les vecteurs vertical et horizontal vers le haut et vers la droite de l'ecran, avec longueur 1
@@ -78,11 +77,7 @@ def drawPerspective ( win, textfont, eye, pov, time, edges ):
 		if (
 			(len(line) <= 3) # no time information
 			or
-			(
-				(time >= line[3]) 
-				and 
-				((len(line) <= 4) or (time < line[4]))
-			)
+			((time >= line[3]) and (time < line[4]))
 		):
 			pygame.draw.line ( 
 				win, 
@@ -92,7 +87,7 @@ def drawPerspective ( win, textfont, eye, pov, time, edges ):
 				line[5] # width
 			)
 
-	textfont.render_to ( win, (3,3), "time:{:.2f}s".format(time), (130,130,130) )
+	textfont.render_to ( win, (3,3), "time:{:.2f}s".format(time), (160,120,120) )
 
 	pygame.display.flip()
 
@@ -106,12 +101,14 @@ def display ( edges, pov=[0,0,0] ):
 
 	obsAngleH = 0
 	obsAngleV = 10/180*math.pi
-	obsRadius = edges.maxDistance(pov)*2
+	obsRadius = edges.maxDistance(pov,1)*2
+	distanceToScreen = obsRadius*10
 
 	rotspeed = +0.1
 	time = 0
 	running = True
 	timerunning = True
+	toggleAutorepeating = False 
 
 	while (running):
 		for event in pygame.event.get():
@@ -128,12 +125,14 @@ def display ( edges, pov=[0,0,0] ):
 				pov[2] + ( obsRadius * math.sin(obsAngleV) )
 			), 
 			pov, 
+			distanceToScreen, 
 			time, 
 			edges 
 		)
 
 		
 		keys = pygame.key.get_pressed()
+		togglePressed = False
 
 		if keys[pygame.K_LEFT]: 
 			obsAngleH += 1/180*math.pi
@@ -160,6 +159,15 @@ def display ( edges, pov=[0,0,0] ):
 		if keys[pygame.K_PAGEDOWN]:
 			obsRadius *= 1.05
 
+		if keys[pygame.K_END]:
+			# closer vanishing points, magnifies the sense of perspective 
+			distanceToScreen *= 1.05
+			obsRadius *= 1.05
+		if keys[pygame.K_HOME]:
+			# vanishing points further away, less sense of perspective, closer to a parallel perspective
+			distanceToScreen *= 0.95
+			obsRadius *= 0.95
+
 		if keys[pygame.K_f]:
 			rotspeed += 0.05
 		if keys[pygame.K_g]:
@@ -168,20 +176,26 @@ def display ( edges, pov=[0,0,0] ):
 			rotspeed -= 0.05
 
 		if keys[pygame.K_SPACE]:
-			timerunning = not timerunning
-		if keys[pygame.K_HOME]:
+			togglePressed = True
+			if (not toggleRepeating):
+				timerunning = not timerunning
+		if keys[pygame.K_z] or keys[pygame.K_y] :
 			time -= 0.1
 			timerunning = False
-		if keys[pygame.K_END]:
+		if keys[pygame.K_x]:
 			time += 0.1
 			timerunning = False
 
 		if keys[pygame.K_ESCAPE]:
 			running = False
 
+
+		toggleRepeating = togglePressed
+
 		clock.tick(30)
 		if (timerunning):
 			time += 0.03
+
 
 	time_lib.sleep(0.5)
 	pygame.quit()
