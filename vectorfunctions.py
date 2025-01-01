@@ -89,10 +89,21 @@ def intersectSegmentPlane ( lineP0, lineVect, planeP0, planeNormal ):
 			return pointPlusVector ( lineP0, lineVect, lamb )
 
 
-
 def projectionCenterPointPlane ( center, point, planeP0, planeNormal ):
 	return intersectLinePlane ( center, vectorAB ( center, point ), planeP0, planeNormal )
 
+
+# one use is when you have a projection center, a point and its projection... 
+# they can be in any order but the longest edge will always pass by all 3 points
+def getLongestEdge ( P1, P2, P3 ):
+	d12 = pointsDistance ( P1, P2 )
+	d13 = pointsDistance ( P1, P3 )
+	d23 = pointsDistance ( P2, P3 )
+	if (d12 >= d13) and (d12 >= d23):
+		return [P1,P2]
+	if (d13 >= d12) and (d13 >= d23):
+		return [P1,P3]
+	return [P2,P3]
 
 
 # returns the usual X,Y,Z (X towrds us = front, Y right, Z up)

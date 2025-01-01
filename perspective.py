@@ -102,7 +102,7 @@ def display ( edges, pov=[0,0,0] ):
 	obsAngleH = 0
 	obsAngleV = 10/180*math.pi
 	obsRadius = edges.maxDistance(pov,1)*2
-	distanceToScreen = obsRadius*10
+	distanceToScreen = obsRadius*100
 
 	rotspeed = +0.1
 	time = 0

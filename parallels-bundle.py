@@ -15,7 +15,7 @@ center = (0,0,0)
 base1 = (0,1,0)
 base2 = (0,0,1)
 baseN = crossProduct ( base1, base2 )
-edges.parallelogram ( center, base1, base2 )
+edges.parallelogramFromCenter ( center, base1, base2 )
 
 projcenter = pointPlusVector ( center, baseN, -0.5 )
 edges.addEdge ( pointPlusVector ( projcenter, base2, -1 ), pointPlusVector ( center, base2, -1 ), (100,100,100) )

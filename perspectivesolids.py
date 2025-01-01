@@ -55,6 +55,10 @@ class Edges:
 		return maxD
 
 
+	def edge ( self, P0, P1, color=None, T0=None, T1=None, width=None ):
+		self.addEdge ( P0, P1, color, T0, T1, width )
+
+
 	def addEdge ( self, P0, P1, color=None, T0=None, T1=None, width=None ):
 		if (color==None): color = self.defaultColor
 		if (width==None): width = self.defaultWidth
@@ -63,7 +67,7 @@ class Edges:
 		self.edges.append ( ( P0, P1, color, T0, T1, width ) )
 
 
-	def parallelogram ( self, center, base0, base1, color=None, T0=None, T1=None, width=None ) :
+	def parallelogramFromCenter ( self, center, base0, base1, color=None, T0=None, T1=None, width=None ) :
 		self.setDefaultColorAndTime(color, T0, T1, width)
 
 		A = pointPlus2Vectors ( center, base0, base1, -1, -1 )
@@ -77,14 +81,77 @@ class Edges:
 		self.addEdge ( D, A )
 
 
+	def parallelogramFromCorner ( self, corner, base0, base1, color=None, T0=None, T1=None, width=None ) :
+		self.setDefaultColorAndTime(color, T0, T1, width)
+
+		A = corner
+		B = pointPlusVector ( corner, base0 )
+		C = pointPlus2Vectors ( corner, base0, base1 )
+		D = pointPlusVector ( corner, base1 )
+
+		self.addEdge ( A, B )
+		self.addEdge ( B, C )
+		self.addEdge ( C, D )
+		self.addEdge ( D, A )
+
+
+	def cuboidFromCorner ( self, 
+		corner, base0, base1, base2, 
+		color=None, T0=None, T1=None, width=None,
+		drawCuboid=True,
+		drawProjection=False,drawCenterToPoint=False,
+		projectionCenterAndPlane=None,
+		drawProjectionSupportLines=False,supportProjectionPlane=None,
+		colorDrawBase0=None,
+		colorDrawBase1=None,
+		colorDrawBase2=None,
+		colorDrawExtensionBase0=None,
+		colorDrawExtensionBase1=None,
+		colorDrawExtensionBase2=None,
+	) :
+		halfBase0 = vectorTimesFactor ( base0, 0.5 )
+		halfBase1 = vectorTimesFactor ( base1, 0.5 )
+		halfBase2 = vectorTimesFactor ( base2, 0.5 )
+		center = pointPlusVector ( pointPlusVector ( pointPlusVector ( corner, halfBase0, 1), halfBase1, 1), halfBase2, 1 )
+		self.cuboid ( 
+			center, halfBase0, halfBase1, halfBase2,
+			color, T0, T1, width,
+			drawCuboid, 
+			drawProjection,drawCenterToPoint, 
+			projectionCenterAndPlane,
+			drawProjectionSupportLines,supportProjectionPlane,
+			colorDrawBase0,
+			colorDrawBase1,
+			colorDrawBase2,
+			colorDrawExtensionBase0,
+			colorDrawExtensionBase1,
+			colorDrawExtensionBase2
+		)
+
+
 	def cuboid ( self, 
 		center, base0, base1, base2, 
 		color=None, T0=None, T1=None, width=None,
 		drawCuboid=True,
 		drawProjection=False,drawCenterToPoint=False,
-		projectionCenter=None,projectionPlane=None,
-		drawProjectionSupportLines=False,supportProjectionPlane=None
+		projectionCenterAndPlane=None,
+		drawProjectionSupportLines=False,supportProjectionPlane=None,
+		colorDrawBase0=None,
+		colorDrawBase1=None,
+		colorDrawBase2=None,
+		colorDrawExtensionBase0=None,
+		colorDrawExtensionBase1=None,
+		colorDrawExtensionBase2=None,
+		lengthExtension=3
 	) :
+
+		def addEdgeExtended ( A, B, color ):
+			self.addEdge ( 
+				pointPlusVector ( A, normalizeVector(vectorAB(A,B)), -lengthExtension ), 
+				pointPlusVector ( B, normalizeVector(vectorAB(A,B)), +lengthExtension ), 
+				color 
+			)
+
 		self.setDefaultColorAndTime(color, T0, T1, width)
 
 		A = pointPlusVector ( pointPlusVector ( pointPlusVector ( center, base0, +1 ), base1, +1 ), base2, +1 )
@@ -96,53 +163,79 @@ class Edges:
 		G = pointPlusVector ( pointPlusVector ( pointPlusVector ( center, base0, -1 ), base1, -1 ), base2, -1 )
 		H = pointPlusVector ( pointPlusVector ( pointPlusVector ( center, base0, -1 ), base1, -1 ), base2, +1 )
 
-		if drawCuboid:
-			self.addEdge ( A, B ) 
-			self.addEdge ( B, C )
-			self.addEdge ( C, D )
-			self.addEdge ( D, A )
-			self.addEdge ( A, E )
-			self.addEdge ( B, F )
-			self.addEdge ( C, G )
-			self.addEdge ( D, H )
-			self.addEdge ( E, F )
-			self.addEdge ( F, G )
-			self.addEdge ( G, H )
-			self.addEdge ( H, E )
-
-		if drawProjection or drawProjectionSupportLines:
-			Ap = projectPointOnPlane ( A, projectionCenter, projectionPlane )
-			Bp = projectPointOnPlane ( B, projectionCenter, projectionPlane )
-			Cp = projectPointOnPlane ( C, projectionCenter, projectionPlane )
-			Dp = projectPointOnPlane ( D, projectionCenter, projectionPlane )
-			Ep = projectPointOnPlane ( E, projectionCenter, projectionPlane )
-			Fp = projectPointOnPlane ( F, projectionCenter, projectionPlane )
-			Gp = projectPointOnPlane ( G, projectionCenter, projectionPlane )
-			Hp = projectPointOnPlane ( H, projectionCenter, projectionPlane )
-
-		if drawProjection:
-			self.addEdge ( Ap, Bp ) 
-			self.addEdge ( Bp, Cp )
-			self.addEdge ( Cp, Dp )
-			self.addEdge ( Dp, Ap )
-			self.addEdge ( Ap, Ep )
-			self.addEdge ( Bp, Fp )
-			self.addEdge ( Cp, Gp )
-			self.addEdge ( Dp, Hp )
-			self.addEdge ( Ep, Fp )
-			self.addEdge ( Fp, Gp )
-			self.addEdge ( Gp, Hp )
-			self.addEdge ( Hp, Ep )
+		if drawProjection or drawProjectionSupportLines or drawCenterToPoint:
+			Ap = projectionCenterPointPlane ( projectionCenterAndPlane[0], A, projectionCenterAndPlane[1], projectionCenterAndPlane[2] )
+			Bp = projectionCenterPointPlane ( projectionCenterAndPlane[0], B, projectionCenterAndPlane[1], projectionCenterAndPlane[2] )
+			Cp = projectionCenterPointPlane ( projectionCenterAndPlane[0], C, projectionCenterAndPlane[1], projectionCenterAndPlane[2] )
+			Dp = projectionCenterPointPlane ( projectionCenterAndPlane[0], D, projectionCenterAndPlane[1], projectionCenterAndPlane[2] )
+			Ep = projectionCenterPointPlane ( projectionCenterAndPlane[0], E, projectionCenterAndPlane[1], projectionCenterAndPlane[2] )
+			Fp = projectionCenterPointPlane ( projectionCenterAndPlane[0], F, projectionCenterAndPlane[1], projectionCenterAndPlane[2] )
+			Gp = projectionCenterPointPlane ( projectionCenterAndPlane[0], G, projectionCenterAndPlane[1], projectionCenterAndPlane[2] )
+			Hp = projectionCenterPointPlane ( projectionCenterAndPlane[0], H, projectionCenterAndPlane[1], projectionCenterAndPlane[2] )
 
 		if drawCenterToPoint:
-			self.addEdge ( projectionCenter, A )
-			self.addEdge ( projectionCenter, B )
-			self.addEdge ( projectionCenter, C )
-			self.addEdge ( projectionCenter, D )
-			self.addEdge ( projectionCenter, E )
-			self.addEdge ( projectionCenter, F )
-			self.addEdge ( projectionCenter, G )
-			self.addEdge ( projectionCenter, H )
+			longest = getLongestEdge ( projectionCenterAndPlane[0], A, Ap )
+			self.addEdge ( longest[0], longest[1] )
+			longest = getLongestEdge ( projectionCenterAndPlane[0], B, Bp )
+			self.addEdge ( longest[0], longest[1] )
+			longest = getLongestEdge ( projectionCenterAndPlane[0], C, Cp )
+			self.addEdge ( longest[0], longest[1] )
+			longest = getLongestEdge ( projectionCenterAndPlane[0], D, Dp )
+			self.addEdge ( longest[0], longest[1] )
+			longest = getLongestEdge ( projectionCenterAndPlane[0], E, Ep )
+			self.addEdge ( longest[0], longest[1] )
+			longest = getLongestEdge ( projectionCenterAndPlane[0], F, Fp )
+			self.addEdge ( longest[0], longest[1] )
+			longest = getLongestEdge ( projectionCenterAndPlane[0], G, Gp )
+			self.addEdge ( longest[0], longest[1] )
+			longest = getLongestEdge ( projectionCenterAndPlane[0], H, Hp )
+			self.addEdge ( longest[0], longest[1] )
+
+		if (colorDrawExtensionBase0 != None):
+			addEdgeExtended ( Ap, Ep, colorDrawExtensionBase0 )
+			addEdgeExtended ( Bp, Fp, colorDrawExtensionBase0 )
+			addEdgeExtended ( Cp, Gp, colorDrawExtensionBase0 )
+			addEdgeExtended ( Dp, Hp, colorDrawExtensionBase0 )
+
+		if (colorDrawExtensionBase1 != None):
+			addEdgeExtended ( Bp, Cp, colorDrawExtensionBase1 )
+			addEdgeExtended ( Dp, Ap, colorDrawExtensionBase1 )
+			addEdgeExtended ( Fp, Gp, colorDrawExtensionBase1 )
+			addEdgeExtended ( Hp, Ep, colorDrawExtensionBase1 )
+
+		if (colorDrawExtensionBase2 != None):
+			addEdgeExtended ( Ap, Bp, colorDrawExtensionBase2 )
+			addEdgeExtended ( Cp, Dp, colorDrawExtensionBase2 )
+			addEdgeExtended ( Ep, Fp, colorDrawExtensionBase2 )
+			addEdgeExtended ( Gp, Hp, colorDrawExtensionBase2 )
+
+		if drawProjection:
+			self.addEdge ( Ap, Bp, colorDrawBase2 )
+			self.addEdge ( Bp, Cp, colorDrawBase1 )
+			self.addEdge ( Cp, Dp, colorDrawBase2 )
+			self.addEdge ( Dp, Ap, colorDrawBase1 )
+			self.addEdge ( Ap, Ep, colorDrawBase0 )
+			self.addEdge ( Bp, Fp, colorDrawBase0 )
+			self.addEdge ( Cp, Gp, colorDrawBase0 )
+			self.addEdge ( Dp, Hp, colorDrawBase0 )
+			self.addEdge ( Ep, Fp, colorDrawBase2 )
+			self.addEdge ( Fp, Gp, colorDrawBase1 )
+			self.addEdge ( Gp, Hp, colorDrawBase2 )
+			self.addEdge ( Hp, Ep, colorDrawBase1 )
+
+		if drawCuboid:
+			self.addEdge ( A, B, colorDrawBase2 )
+			self.addEdge ( B, C, colorDrawBase1 )
+			self.addEdge ( C, D, colorDrawBase2 )
+			self.addEdge ( D, A, colorDrawBase1 )
+			self.addEdge ( A, E, colorDrawBase0 )
+			self.addEdge ( B, F, colorDrawBase0 )
+			self.addEdge ( C, G, colorDrawBase0 )
+			self.addEdge ( D, H, colorDrawBase0 )
+			self.addEdge ( E, F, colorDrawBase2 )
+			self.addEdge ( F, G, colorDrawBase1 )
+			self.addEdge ( G, H, colorDrawBase2 )
+			self.addEdge ( H, E, colorDrawBase1 )
 
 		if drawProjectionSupportLines:
 			pass
@@ -151,13 +244,13 @@ class Edges:
 
 
 
-	def cube ( self, center, up, right, color=None, T0=None, T1=None ):
+	def cube ( self, center, up, right, color=None, T0=None, T1=None, width=None ):
 		base = orthogonalBase ( up, right )
-		self.cuboid ( center, base[0], base[1], base[2], color, T0, T1 )
+		self.cuboid ( center, base[0], base[1], base[2], color, T0, T1, width )
 
 
 	def octahedron ( self, center, base0, base1, base2, color=None, T0=None, T1=None, width=None ) :
-		self.setDefaultColorAndTime(color, T0, T1, widt)
+		self.setDefaultColorAndTime(color, T0, T1, width)
 
 		A = pointPlusVector ( center, base0 )	
 		B = pointPlusVector ( center, base0, -1 )	
@@ -180,9 +273,9 @@ class Edges:
 		self.addEdge ( B, F )
 
 
-	def regularOctahedron ( self, center, up, right, color=None, T0=None, T1=None ) :
+	def regularOctahedron ( self, center, up, right, color=None, T0=None, T1=None, width=None ) :
 		base = orthogonalBase ( up, right )
-		self.octahedron ( edges, center, base[0], base[1], base[2], color, T0, T1 )
+		self.octahedron ( edges, center, base[0], base[1], base[2], color, T0, T1, width )
 
 
 	def cubeOctahedron ( self, center, up, right, color=None, T0=None, T1=None, width=None ) :
